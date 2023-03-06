@@ -1,6 +1,7 @@
 package clients
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -9,6 +10,13 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+)
+
+var (
+	httpClient = &http.Client{
+		Timeout: time.Second,
+	}
+	apiKey = "abc123"
 )
 
 func TestNewFootballAPIClient(t *testing.T) {
@@ -22,7 +30,7 @@ func TestNewFootballAPIClient(t *testing.T) {
 	})
 
 	t.Run("ok", func(t *testing.T) {
-		NewFootballAPIClient("abc123")
+		NewFootballAPIClient(apiKey)
 	})
 }
 
@@ -45,10 +53,8 @@ func TestGetLeagueByCode(t *testing.T) {
 
 			c := &realAPIClient{
 				baseURL: server.URL,
-				client: &http.Client{
-					Timeout: time.Second,
-				},
-				apiKey: "abc123",
+				client:  httpClient,
+				apiKey:  apiKey,
 			}
 			response, err := c.GetLeagueByCode(tc.code)
 			assert.Equal(t, err == nil, tc.isSuccess)
@@ -65,9 +71,52 @@ func TestGetLeagueByCode(t *testing.T) {
 	}
 }
 
+func TestGetTeamByID(t *testing.T) {
+	client = &http.Client{
+		Timeout: time.Second,
+	}
+
+	testCases := []struct {
+		name       string
+		id         int64
+		statusCode int
+		isSuccess  bool
+	}{
+		{"ok", 2061, 200, true},
+		{"not found", 999, 404, false},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			apiContent := loadGoldenFile(t.Name())
+			server := newTestServer(fmt.Sprintf("/teams/%d", tc.id), tc.statusCode, apiContent)
+			defer server.Close()
+
+			c := &realAPIClient{
+				baseURL: server.URL,
+				client:  httpClient,
+				apiKey:  apiKey,
+			}
+			response, err := c.GetTeamByID(tc.id)
+			assert.Equal(t, err == nil, tc.isSuccess)
+			assert.Equal(t, response != nil, tc.isSuccess)
+
+			if tc.isSuccess {
+				assert.Equal(t, "CA Boca Juniors", response.Name)
+				assert.Equal(t, 2061, response.ID)
+				assert.Equal(t, "Boca Juniors", response.ShortName)
+				assert.Equal(t, "BOC", response.TLA)
+				assert.Equal(t, "Brandsen 805, La Boca Buenos Aires, Buenos Aires 1161", response.Address)
+				assert.Equal(t, "Argentina", response.Area.Name)
+			} else {
+				assert.True(t, strings.Contains(err.Error(), "failed to retrieve content:"))
+			}
+		})
+	}
+}
+
 // loadGoldenFiles uses the test name to load a JSON value as expected result.
 func loadGoldenFile(testName string) []byte {
-	testName = strings.ReplaceAll(testName, " ", "_")
 	content, err := os.ReadFile("./golden/" + testName + ".json")
 	if err != nil {
 		panic(err)
