@@ -3,7 +3,7 @@ package configs
 import "os"
 
 const (
-	FOOTBALL_APIKEY_KEY = "FOOTBALL_APIKEY"
+	FootballApikeyKey = "FOOTBALL_APIKEY"
 )
 
 var (
@@ -15,5 +15,5 @@ func GetFootballAPIKey() string {
 }
 
 func init() {
-	apiKey = os.Getenv(FOOTBALL_APIKEY_KEY)
+	apiKey = os.Getenv(FootballApikeyKey)
 }

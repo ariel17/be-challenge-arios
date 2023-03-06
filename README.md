@@ -11,7 +11,7 @@ docker build . -t be-challenge-arios
 ### Using environment variables file
 Add keys to `.env` file:
 ```
-MY_SECRET_KEY1=v4lu3!#
+FOOTBALL_APIKEY=v4lu3!#
 ```
 
 Make Docker pick them as follows:
