@@ -29,15 +29,6 @@ type League struct {
 	Type string `json:"type"`
 }
 
-type Team struct {
-	Area      Area   `json:"area"`
-	ID        int64  `json:"id"`
-	Name      string `json:"name"`
-	ShortName string `json:"shortName"`
-	TLA       string `json:"tla"`
-	Address   string `json:"address"`
-}
-
 type Person struct {
 	ID          int64  `json:"id"`
 	Name        string `json:"name"`
@@ -46,11 +37,27 @@ type Person struct {
 	Nationality string `json:"nationality"`
 }
 
+type Team struct {
+	Area      Area     `json:"area"`
+	ID        int64    `json:"id"`
+	Name      string   `json:"name"`
+	ShortName string   `json:"shortName"`
+	TLA       string   `json:"tla"`
+	Address   string   `json:"address"`
+	Coach     Person   `json:"coach"`
+	Squad     []Person `json:"squad"`
+}
+
+type teams struct {
+	Teams []Team `json:"teams"`
+}
+
 // FootballAPIClient is the behavior contract that every implementation must
 // comply. It offers access to football-data.org data with handy methods. It is
 // NOT a full client implementation but access to required resources.
 type FootballAPIClient interface {
 	GetLeagueByCode(code string) (*League, error)
+	GetTeamsByLeagueCode(code string) ([]Team, error)
 	GetTeamByID(id int64) (*Team, error)
 	GetPersonByID(id int64) (*Person, error)
 }
@@ -109,6 +116,21 @@ func (r *realAPIClient) GetLeagueByCode(code string) (*League, error) {
 		return nil, err
 	}
 	return &league, nil
+}
+
+func (r *realAPIClient) GetTeamsByLeagueCode(code string) ([]Team, error) {
+	url := fmt.Sprintf("/competitions/%s/teams", code)
+	body, err := r.get(url)
+	if err != nil {
+		return nil, err
+	}
+
+	t := teams{}
+	err = json.Unmarshal(body, &t)
+	if err != nil {
+		return nil, err
+	}
+	return t.Teams, nil
 }
 
 func (r *realAPIClient) GetTeamByID(id int64) (*Team, error) {

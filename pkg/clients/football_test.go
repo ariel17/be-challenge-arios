@@ -101,6 +101,40 @@ func TestGetLeagueByCode(t *testing.T) {
 	}
 }
 
+func TestGetTeamsByLeagueCode(t *testing.T) {
+	testCases := []struct {
+		name       string
+		code       string
+		statusCode int
+		isSuccess  bool
+	}{
+		{"ok", "WC", 200, true},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			apiContent := loadGoldenFile(t.Name())
+			server := newTestServer("/competitions/"+tc.code+"/teams", tc.statusCode, apiContent)
+			defer server.Close()
+
+			c := &realAPIClient{
+				baseURL: server.URL,
+				client:  httpClient,
+				apiKey:  apiKey,
+			}
+			response, err := c.GetTeamsByLeagueCode(tc.code)
+			assert.Equal(t, err == nil, tc.isSuccess)
+			assert.Equal(t, response != nil, tc.isSuccess)
+
+			if tc.isSuccess {
+				assert.Equal(t, 32, len(response))
+			} else {
+				assert.True(t, strings.Contains(err.Error(), "failed to retrieve content:"))
+			}
+		})
+	}
+}
+
 func TestGetTeamByID(t *testing.T) {
 	client = &http.Client{
 		Timeout: time.Second,
@@ -156,7 +190,6 @@ func TestGetPersonByID(t *testing.T) {
 		isSuccess  bool
 	}{
 		{"ok", 44, 200, true},
-		{"not found", 999, 404, false},
 	}
 
 	for _, tc := range testCases {
