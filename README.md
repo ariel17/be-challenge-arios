@@ -1,20 +1,11 @@
-# Golang base
-
-This is a project template for future Golang projects of my own.
-
-## Features
-
-* Simple environment variables picking and setting.
-* Basic Docker configuration file to build images for production.
-* Testing frameworks added.
-* Gin-Gonic HTTP framework port 8080 (configurable through env), with status
-  handler.
+# Backend challenge from Ariel Gerardo Ríos (that's me!)
 
 ## Usage
+TODO
 
 ### Build Docker image
 ```
-docker build . -t ariel17/base
+docker build . -t be-challenge-arios
 ```
 
 ### Using environment variables file
@@ -25,7 +16,7 @@ MY_SECRET_KEY1=v4lu3!#
 
 Make Docker pick them as follows:
 ```
-docker run --env-file .env ariel17/base
+docker run --env-file .env be-challenge-arios
 ```
 
 ### Build Swagger documentation
