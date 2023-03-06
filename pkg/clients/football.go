@@ -38,16 +38,21 @@ type Team struct {
 	Address   string `json:"address"`
 }
 
+type Person struct {
+	ID          int64  `json:"id"`
+	Name        string `json:"name"`
+	Position    string `json:"position"`
+	DateOfBirth string `json:"dateOfBirth"`
+	Nationality string `json:"nationality"`
+}
+
 // FootballAPIClient is the behavior contract that every implementation must
 // comply. It offers access to football-data.org data with handy methods. It is
 // NOT a full client implementation but access to required resources.
 type FootballAPIClient interface {
 	GetLeagueByCode(code string) (*League, error)
 	GetTeamByID(id int64) (*Team, error)
-
-	// TODO GetTeam
-	// TODO GetPlayer
-	// TODO GetCoach
+	GetPersonByID(id int64) (*Person, error)
 }
 
 // NewFootballAPIClient creates a new instance of real API client.
@@ -68,7 +73,8 @@ type realAPIClient struct {
 	apiKey  string
 }
 
-func (r *realAPIClient) get(url string) ([]byte, error) {
+func (r *realAPIClient) get(path string) ([]byte, error) {
+	url := r.baseURL + path
 	request, _ := http.NewRequest(http.MethodGet, url, nil)
 	request.Header.Set("X-Auth-Token", r.apiKey)
 
@@ -92,7 +98,7 @@ func (r *realAPIClient) get(url string) ([]byte, error) {
 }
 
 func (r *realAPIClient) GetLeagueByCode(code string) (*League, error) {
-	url := fmt.Sprintf("%s/competitions/%s", r.baseURL, code)
+	url := fmt.Sprintf("/competitions/%s", code)
 	body, err := r.get(url)
 	if err != nil {
 		return nil, err
@@ -106,7 +112,7 @@ func (r *realAPIClient) GetLeagueByCode(code string) (*League, error) {
 }
 
 func (r *realAPIClient) GetTeamByID(id int64) (*Team, error) {
-	url := fmt.Sprintf("%s/teams/%d", r.baseURL, id)
+	url := fmt.Sprintf("/teams/%d", id)
 	body, err := r.get(url)
 	if err != nil {
 		return nil, err
@@ -117,6 +123,20 @@ func (r *realAPIClient) GetTeamByID(id int64) (*Team, error) {
 		return nil, err
 	}
 	return &team, nil
+}
+
+func (r *realAPIClient) GetPersonByID(id int64) (*Person, error) {
+	url := fmt.Sprintf("/persons/%d", id)
+	body, err := r.get(url)
+	if err != nil {
+		return nil, err
+	}
+	person := Person{}
+	err = json.Unmarshal(body, &person)
+	if err != nil {
+		return nil, err
+	}
+	return &person, nil
 }
 
 func init() {
