@@ -15,8 +15,8 @@ import (
 // @Produce json
 // @Router /status [get]
 func StatusHandler(c *gin.Context) {
-	status, err := services.GetStatus()
-	if err != nil {
+	status := services.GetStatus()
+	if status.IsError() {
 		c.JSON(http.StatusInternalServerError, status)
 		return
 	}

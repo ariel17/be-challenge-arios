@@ -1,7 +1,7 @@
 package services
 
 import (
-	"github.com/ariel17/be-challenge-arios/pkg/configs"
+	"github.com/ariel17/be-challenge-arios/pkg/repositories"
 )
 
 const (
@@ -9,21 +9,33 @@ const (
 	errorStatus = "error"
 )
 
+var (
+	repository repositories.Repository
+)
+
 type Status struct {
 	Status string `json:"status"`
 	Detail string `json:"detail"`
 }
 
+func (s Status) IsError() bool {
+	return s.Status == errorStatus
+}
+
 // GetStatus checks the application's health and returns and object describing
 // it.
-func GetStatus() (Status, error) {
-	if tx := configs.GetDB().Raw(configs.GetStatusQuery()); tx.Error != nil {
+func GetStatus() Status {
+	if err := repository.GetStatus(); err != nil {
 		return Status{
 			Status: errorStatus,
-			Detail: tx.Error.Error(),
-		}, tx.Error
+			Detail: err.Error(),
+		}
 	}
 	return Status{
 		Status: okStatus,
-	}, nil
+	}
+}
+
+func init() {
+	repository = repositories.NewMySQLRepository()
 }

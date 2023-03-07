@@ -112,7 +112,7 @@ func (r *realAPIClient) get(path string) ([]byte, error) {
 		return nil, err
 	}
 
-	if response.StatusCode != 200 {
+	if response.StatusCode != http.StatusOK {
 		return nil, errors.New("failed to retrieve content: " + string(body))
 	}
 
