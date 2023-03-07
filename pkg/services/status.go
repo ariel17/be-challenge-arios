@@ -4,38 +4,35 @@ import (
 	"github.com/ariel17/be-challenge-arios/pkg/repositories"
 )
 
-const (
-	okStatus    = "ok"
-	errorStatus = "error"
-)
-
-var (
-	repository repositories.Repository
-)
-
 type Status struct {
-	Status string `json:"status"`
+	OK     bool   `json:"ok"`
 	Detail string `json:"detail"`
 }
 
-func (s Status) IsError() bool {
-	return s.Status == errorStatus
+type StatusService interface {
+	GetStatus() Status
+}
+
+func NewStatusService(repository repositories.Repository) StatusService {
+	return &realStatusService{
+		Repository: repository,
+	}
+}
+
+type realStatusService struct {
+	Repository repositories.Repository
 }
 
 // GetStatus checks the application's health and returns and object describing
 // it.
-func GetStatus() Status {
-	if err := repository.GetStatus(); err != nil {
+func (r *realStatusService) GetStatus() Status {
+	if err := r.Repository.GetStatus(); err != nil {
 		return Status{
-			Status: errorStatus,
+			OK:     false,
 			Detail: err.Error(),
 		}
 	}
 	return Status{
-		Status: okStatus,
+		OK: true,
 	}
-}
-
-func init() {
-	repository = repositories.NewMySQLRepository()
 }

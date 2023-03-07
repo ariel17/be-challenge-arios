@@ -3,14 +3,27 @@ package services
 import (
 	"github.com/ariel17/be-challenge-arios/pkg/clients"
 	"github.com/ariel17/be-challenge-arios/pkg/models"
+	"github.com/ariel17/be-challenge-arios/pkg/repositories"
 )
 
-var (
-	client clients.FootballAPIClient
-)
+type ImporterService interface {
+	ImportDataByCompetitionCode(code string) error
+}
 
-func ImportDataByCompetitionCode(code string) error {
-	rawCompetition, err := client.GetLeagueByCode(code)
+func NewImporterService(apiClient clients.FootballAPIClient, repository repositories.Repository) ImporterService {
+	return &realImporterService{
+		Client:     apiClient,
+		Repository: repository,
+	}
+}
+
+type realImporterService struct {
+	Client     clients.FootballAPIClient
+	Repository repositories.Repository
+}
+
+func (r *realImporterService) ImportDataByCompetitionCode(code string) error {
+	rawCompetition, err := r.Client.GetLeagueByCode(code)
 	if err != nil {
 		return err
 	}
@@ -19,11 +32,11 @@ func ImportDataByCompetitionCode(code string) error {
 		Name:     rawCompetition.Name,
 		AreaName: rawCompetition.Area.Name,
 	}
-	if err := repository.AddCompetition(competition); err != nil {
+	if err := r.Repository.AddCompetition(competition); err != nil {
 		return err
 	}
 
-	rawTeams, err := client.GetTeamsByLeagueCode(code)
+	rawTeams, err := r.Client.GetTeamsByLeagueCode(code)
 	if err != nil {
 		return err
 	}
@@ -35,44 +48,43 @@ func ImportDataByCompetitionCode(code string) error {
 			AreaName:  rawTeam.Area.Name,
 			Address:   rawTeam.Address,
 		}
-		if err := repository.AddTeam(team); err != nil {
+		if err := r.Repository.AddTeam(team); err != nil {
 			return err
 		}
-		if err := repository.AddTeamToCompetition(team, competition); err != nil {
-			return err
-		}
-
-		coach := models.Person{
-			ID:          rawTeam.Coach.ID,
-			Name:        rawTeam.Coach.Name,
-			DateOfBirth: rawTeam.Coach.DateOfBirth,
-			Nationality: rawTeam.Coach.Nationality,
-		}
-		if err := repository.AddPerson(coach); err != nil {
-			return err
-		}
-		if err := repository.AddPersonToTeam(coach, team); err != nil {
+		if err := r.Repository.AddTeamToCompetition(team, competition); err != nil {
 			return err
 		}
 
-		for _, rawPerson := range rawTeam.Squad {
-			player := models.Person{
-				ID:          rawPerson.ID,
-				Name:        rawPerson.Name,
-				Position:    &rawPerson.Position,
-				DateOfBirth: rawPerson.DateOfBirth,
-				Nationality: rawPerson.Nationality,
+		if len(rawTeam.Squad) > 0 {
+			for _, rawPerson := range rawTeam.Squad {
+				player := models.Person{
+					ID:          rawPerson.ID,
+					Name:        rawPerson.Name,
+					Position:    &rawPerson.Position,
+					DateOfBirth: rawPerson.DateOfBirth,
+					Nationality: rawPerson.Nationality,
+				}
+				if err := r.Repository.AddPerson(player); err != nil {
+					return err
+				}
+				if err := r.Repository.AddPersonToTeam(player, team); err != nil {
+					return err
+				}
 			}
-			if err := repository.AddPerson(player); err != nil {
+		} else {
+			coach := models.Person{
+				ID:          rawTeam.Coach.ID,
+				Name:        rawTeam.Coach.Name,
+				DateOfBirth: rawTeam.Coach.DateOfBirth,
+				Nationality: rawTeam.Coach.Nationality,
+			}
+			if err := r.Repository.AddPerson(coach); err != nil {
 				return err
 			}
-			if err := repository.AddPersonToTeam(player, team); err != nil {
+			if err := r.Repository.AddPersonToTeam(coach, team); err != nil {
 				return err
 			}
 		}
 	}
-}
-
-func init() {
-	client = clients.NewFootballAPIClient()
+	return nil
 }
