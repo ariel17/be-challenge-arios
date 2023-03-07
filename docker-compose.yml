@@ -2,6 +2,9 @@
 services:
   api:
     build: .
+    environment:
+      FOOTBALL_APIKEY: apiKey
+      DATABASE_DSN: challenge:challenge@tcp(db:3306)/challenge
     ports:
       - "8080:8080"
     depends_on:
@@ -12,8 +15,10 @@ services:
     command: --default-authentication-plugin=mysql_native_password
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: challenge
       MYSQL_DATABASE: challenge
+      MYSQL_USER: challenge
+      MYSQL_PASSWORD: challenge
+      MYSQL_ALLOW_EMPTY_PASSWORD: true
     ports:
       - "3306:3306"
     volumes:
