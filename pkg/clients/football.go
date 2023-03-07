@@ -22,17 +22,13 @@ var (
 )
 
 type Area struct {
-	ID   int64  `json:"id"`
 	Name string `json:"name"`
-	Code string `json:"code"`
 }
 
 type League struct {
 	Area Area   `json:"area"`
-	ID   int64  `json:"id"`
 	Name string `json:"name"`
 	Code string `json:"code"`
-	Type string `json:"type"`
 }
 
 type Person struct {
@@ -45,7 +41,6 @@ type Person struct {
 
 type Team struct {
 	Area      Area     `json:"area"`
-	ID        int64    `json:"id"`
 	Name      string   `json:"name"`
 	ShortName string   `json:"shortName"`
 	TLA       string   `json:"tla"`
