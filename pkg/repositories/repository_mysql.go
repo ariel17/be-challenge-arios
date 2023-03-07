@@ -39,31 +39,31 @@ func (m *mysqlRepository) GetStatus() error {
 }
 
 func (m *mysqlRepository) AddPerson(person models.Person) error {
-	query := "INSERT INTO `persons` (`id`, `name`, `date_of_birth`, `nationality`) VALUES (?, ?, ?, ?)"
+	query := "INSERT IGNORE INTO `persons` (`id`, `name`, `date_of_birth`, `nationality`) VALUES (?, ?, ?, ?)"
 	_, err := m.db.Exec(query, person.ID, person.Name, person.DateOfBirth, person.Nationality)
 	return err
 }
 
 func (m *mysqlRepository) AddTeam(team models.Team) error {
-	query := "INSERT INTO `teams` (`tla`, `name`, `short_name`, `area_name`, `address`) VALUES (?, ?, ?, ?, ?)"
+	query := "INSERT IGNORE INTO `teams` (`tla`, `name`, `short_name`, `area_name`, `address`) VALUES (?, ?, ?, ?, ?)"
 	_, err := m.db.Exec(query, team.TLA, team.Name, team.ShortName, team.AreaName, team.Address)
 	return err
 }
 
 func (m *mysqlRepository) AddCompetition(competition models.Competition) error {
-	query := "INSERT INTO `competitions` (`code`, `name`, `area_name`) VALUES (?, ?, ?)"
+	query := "INSERT IGNORE INTO `competitions` (`code`, `name`, `area_name`) VALUES (?, ?, ?)"
 	_, err := m.db.Exec(query, competition.Code, competition.Name, competition.AreaName)
 	return err
 }
 
 func (m *mysqlRepository) AddTeamToCompetition(team models.Team, competition models.Competition) error {
-	query := "INSERT INTO `competitions_teams` (`competition_code`, `team_tla`) VALUES (?, ?)"
+	query := "INSERT IGNORE INTO `competitions_teams` (`competition_code`, `team_tla`) VALUES (?, ?)"
 	_, err := m.db.Exec(query, competition.Code, team.TLA)
 	return err
 }
 
 func (m *mysqlRepository) AddPersonToTeam(person models.Person, team models.Team) error {
-	query := "INSERT INTO `teams_persons` (`team_tla`, `person_id`, `position`) VALUES (?, ?, ?)"
+	query := "INSERT IGNORE INTO `teams_persons` (`team_tla`, `person_id`, `position`) VALUES (?, ?, ?)"
 	_, err := m.db.Exec(query, team.TLA, person.ID, person.Position)
 	return err
 }

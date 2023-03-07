@@ -34,7 +34,7 @@ func TestMysqlRepository_AddPerson(t *testing.T) {
 
 			r := &mysqlRepository{db: db}
 
-			expectedExec := mock.ExpectExec("INSERT INTO `persons`").
+			expectedExec := mock.ExpectExec("INSERT IGNORE INTO `persons`").
 				WithArgs(person.ID, person.Name, person.DateOfBirth, person.Nationality)
 
 			if tc.isSuccess {
@@ -76,7 +76,7 @@ func TestMysqlRepository_AddTeam(t *testing.T) {
 
 			r := &mysqlRepository{db: db}
 
-			expectedExec := mock.ExpectExec("INSERT INTO `teams`").
+			expectedExec := mock.ExpectExec("INSERT IGNORE INTO `teams`").
 				WithArgs(team.TLA, team.Name, team.ShortName, team.AreaName, team.Address)
 
 			if tc.isSuccess {
@@ -116,7 +116,7 @@ func TestMysqlRepository_AddCompetition(t *testing.T) {
 
 			r := &mysqlRepository{db: db}
 
-			expectedExec := mock.ExpectExec("INSERT INTO `competitions`").
+			expectedExec := mock.ExpectExec("INSERT IGNORE INTO `competitions`").
 				WithArgs(competition.Code, competition.Name, competition.AreaName)
 
 			if tc.isSuccess {
@@ -157,7 +157,7 @@ func TestMysqlRepository_AddTeamToCompetition(t *testing.T) {
 
 			r := &mysqlRepository{db: db}
 
-			expectedExec := mock.ExpectExec("INSERT INTO `competitions_teams`").
+			expectedExec := mock.ExpectExec("INSERT IGNORE INTO `competitions_teams`").
 				WithArgs(competition.Code, team.TLA)
 
 			if tc.isSuccess {
@@ -205,7 +205,7 @@ func TestMysqlRepository_AddPersonToTeam(t *testing.T) {
 
 			r := &mysqlRepository{db: db}
 
-			expectedExec := mock.ExpectExec("INSERT INTO `teams_persons`").
+			expectedExec := mock.ExpectExec("INSERT IGNORE INTO `teams_persons`").
 				WithArgs(team.TLA, tc.person.ID, tc.person.Position)
 
 			if tc.isSuccess {
