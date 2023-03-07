@@ -5,8 +5,9 @@ import (
 )
 
 const (
-	dsnKey         = "DATABASE_DSN"
-	statusQueryKey = "DATABASE_STATUS_QUERY"
+	dsnKey             = "DATABASE_DSN"
+	statusQueryKey     = "DATABASE_STATUS_QUERY"
+	defaultStatusQuery = "SELECT 1"
 )
 
 var (
@@ -27,5 +28,9 @@ func GetStatusQuery() string {
 
 func init() {
 	dsn = os.Getenv(dsnKey)
+
 	statusQuery = os.Getenv(statusQueryKey)
+	if statusQuery == "" {
+		statusQuery = defaultStatusQuery
+	}
 }
