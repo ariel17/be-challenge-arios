@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/ariel17/golang-base/pkg/services"
+	"github.com/ariel17/be-challenge-arios/pkg/services"
 )
 
 // StatusHandler TODO

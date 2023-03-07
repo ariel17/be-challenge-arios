@@ -7,8 +7,8 @@ import (
 	"github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
 
-	_ "github.com/ariel17/golang-base/api"
-	"github.com/ariel17/golang-base/pkg/configs"
+	_ "github.com/ariel17/be-challenge-arios/api"
+	"github.com/ariel17/be-challenge-arios/pkg/configs"
 )
 
 const statusPath = "/status"

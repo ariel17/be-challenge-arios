@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/ariel17/golang-base/pkg/server"
+	"github.com/ariel17/be-challenge-arios/pkg/server"
 )
 
 // @title           Swagger Example API

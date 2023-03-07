@@ -1,7 +1,7 @@
 package services
 
 import (
-	"github.com/ariel17/golang-base/pkg/configs"
+	"github.com/ariel17/be-challenge-arios/pkg/configs"
 )
 
 const (
