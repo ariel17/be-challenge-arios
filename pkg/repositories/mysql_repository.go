@@ -5,6 +5,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 
+	"github.com/ariel17/be-challenge-arios/pkg/configs"
 	"github.com/ariel17/be-challenge-arios/pkg/models"
 )
 
@@ -16,8 +17,8 @@ type mysqlRepository struct {
 	db *sql.DB
 }
 
-func (m *mysqlRepository) Connect(dsn string) error {
-	db, err := sql.Open("mysql", dsn)
+func (m *mysqlRepository) Connect() error {
+	db, err := sql.Open("mysql", configs.GetDSN())
 	if err != nil {
 		return err
 	}
@@ -30,6 +31,11 @@ func (m *mysqlRepository) Close() error {
 		return m.db.Close()
 	}
 	return nil
+}
+
+func (m *mysqlRepository) GetStatus() error {
+	_, err := m.db.Query(configs.GetStatusQuery())
+	return err
 }
 
 func (m *mysqlRepository) AddPerson(person models.Person) error {

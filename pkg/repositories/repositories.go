@@ -3,8 +3,9 @@ package repositories
 import "github.com/ariel17/be-challenge-arios/pkg/models"
 
 type Repository interface {
-	Connect(dsn string) error
+	Connect() error
 	Close() error
+	GetStatus() error
 
 	AddPerson(person models.Person) error
 	AddTeam(team models.Team) error
