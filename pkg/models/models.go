@@ -1,8 +1,9 @@
 package models
 
 type Person struct {
+	ID          int64
 	Name        string
-	Position    *string `json:"position"`
+	Position    *string `json:"position,omitempty"`
 	DateOfBirth string  `json:"date_of_birth"`
 	Nationality string  `json:"nationality"`
 }
