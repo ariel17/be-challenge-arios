@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/time/rate"
 )
 
 var (
@@ -35,34 +36,44 @@ func TestNewFootballAPIClient(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
-	testCases := []struct {
-		name       string
-		statusCode int
-		isSuccess  bool
-	}{
-		{"not found", 404, false},
-	}
+	t.Run("rate limit applied", func(t *testing.T) {
+		apiContent := loadGoldenFile(t.Name())
+		server := newTestServer("/", 200, apiContent)
+		defer server.Close()
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			apiContent := loadGoldenFile(t.Name())
-			server := newTestServer("/", tc.statusCode, apiContent)
-			defer server.Close()
+		c := &realAPIClient{
+			baseURL:     server.URL,
+			client:      httpClient,
+			apiKey:      apiKey,
+			rateLimiter: rate.NewLimiter(rate.Every(time.Second), 1),
+		}
 
-			c := &realAPIClient{
-				baseURL: server.URL,
-				client:  httpClient,
-				apiKey:  apiKey,
-			}
+		start := time.Now()
+		for i := 0; i < 2; i++ {
 			response, err := c.get("/")
-			assert.Equal(t, err == nil, tc.isSuccess)
-			assert.Equal(t, response != nil, tc.isSuccess)
+			assert.NotNil(t, response)
+			assert.Nil(t, err)
+		}
+		elapsed := time.Since(start)
 
-			if !tc.isSuccess {
-				assert.Contains(t, err.Error(), "failed to retrieve content:")
-			}
-		})
-	}
+		assert.True(t, elapsed.Seconds() >= float64(1))
+	})
+
+	t.Run("not found", func(t *testing.T) {
+		apiContent := loadGoldenFile(t.Name())
+		server := newTestServer("/", 404, apiContent)
+		defer server.Close()
+
+		c := &realAPIClient{
+			baseURL: server.URL,
+			client:  httpClient,
+			apiKey:  apiKey,
+		}
+		response, err := c.get("/")
+		assert.Nil(t, response)
+		assert.NotNil(t, err)
+		assert.Contains(t, err.Error(), "failed to retrieve content:")
+	})
 }
 
 func TestGetLeagueByCode(t *testing.T) {
@@ -221,8 +232,8 @@ func TestGetPersonByID(t *testing.T) {
 }
 
 // loadGoldenFiles uses the test name to load a JSON value as expected result.
-func loadGoldenFile(testName string) []byte {
-	content, err := os.ReadFile("./golden/" + testName + ".json")
+func loadGoldenFile(name string) []byte {
+	content, err := os.ReadFile("./golden/" + name + ".json")
 	if err != nil {
 		panic(err)
 	}

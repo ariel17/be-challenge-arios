@@ -1,18 +1,24 @@
 package clients
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"time"
+
+	"golang.org/x/time/rate"
+
+	"github.com/ariel17/be-challenge-arios/pkg/configs"
 )
 
 const BASE_API_URL = "http://api.football-data.org/v4/"
 
 var (
-	client *http.Client
+	client      *http.Client
+	rateLimiter *rate.Limiter
 )
 
 type Area struct {
@@ -68,19 +74,28 @@ func NewFootballAPIClient(apiKey string) FootballAPIClient {
 		panic("cannot work without a key")
 	}
 	return &realAPIClient{
-		baseURL: BASE_API_URL,
-		client:  client,
-		apiKey:  apiKey,
+		baseURL:     BASE_API_URL,
+		client:      client,
+		apiKey:      apiKey,
+		rateLimiter: rateLimiter,
 	}
 }
 
 type realAPIClient struct {
-	baseURL string
-	client  *http.Client
-	apiKey  string
+	baseURL     string
+	client      *http.Client
+	apiKey      string
+	rateLimiter *rate.Limiter
 }
 
 func (r *realAPIClient) get(path string) ([]byte, error) {
+	if r.rateLimiter != nil {
+		ctx := context.Background()
+		if err := r.rateLimiter.Wait(ctx); err != nil {
+			return nil, err
+		}
+	}
+
 	url := r.baseURL + path
 	request, _ := http.NewRequest(http.MethodGet, url, nil)
 	request.Header.Set("X-Auth-Token", r.apiKey)
@@ -162,6 +177,7 @@ func (r *realAPIClient) GetPersonByID(id int64) (*Person, error) {
 }
 
 func init() {
+	rateLimiter = rate.NewLimiter(rate.Every(time.Minute), configs.GetFootballMaxRequestsPerMinute())
 	client = &http.Client{
 		Timeout: time.Second,
 	}

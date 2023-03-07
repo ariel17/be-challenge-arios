@@ -12,6 +12,7 @@ docker build . -t be-challenge-arios
 Add keys to `.env` file:
 ```
 FOOTBALL_APIKEY=v4lu3!#
+FOOTBALL_MAX_REQUESTS_PER_MINUTE 10
 ```
 
 Make Docker pick them as follows:
