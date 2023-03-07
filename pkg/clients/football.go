@@ -69,14 +69,11 @@ type FootballAPIClient interface {
 }
 
 // NewFootballAPIClient creates a new instance of real API client.
-func NewFootballAPIClient(apiKey string) FootballAPIClient {
-	if apiKey == "" {
-		panic("cannot work without a key")
-	}
+func NewFootballAPIClient() FootballAPIClient {
 	return &realAPIClient{
 		baseURL:     BASE_API_URL,
 		client:      client,
-		apiKey:      apiKey,
+		apiKey:      configs.GetFootballAPIKey(),
 		rateLimiter: rateLimiter,
 	}
 }

@@ -20,21 +20,6 @@ var (
 	apiKey = "abc123"
 )
 
-func TestNewFootballAPIClient(t *testing.T) {
-	t.Run("fails without api key", func(t *testing.T) {
-		defer func() {
-			if r := recover(); r == nil {
-				t.Errorf("The code did not panic")
-			}
-		}()
-		NewFootballAPIClient("")
-	})
-
-	t.Run("ok", func(t *testing.T) {
-		NewFootballAPIClient(apiKey)
-	})
-}
-
 func TestGet(t *testing.T) {
 	t.Run("rate limit applied", func(t *testing.T) {
 		apiContent := loadGoldenFile(t.Name())
