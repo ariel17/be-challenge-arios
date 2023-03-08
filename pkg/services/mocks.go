@@ -19,9 +19,9 @@ type MockStatusService struct {
 	mock.Mock
 }
 
-func (m *MockStatusService) GetStatus() Status {
+func (m *MockStatusService) GetStatus() error {
 	args := m.Called()
-	return args.Get(0).(Status)
+	return args.Error(0)
 }
 
 type MockFootballService struct {
@@ -30,15 +30,27 @@ type MockFootballService struct {
 
 func (m *MockStatusService) GetPlayersByCompetitionCode(code, teamNameToFilter string) ([]models.Person, bool, error) {
 	args := m.Called(code, teamNameToFilter)
-	return args.Get(0).([]models.Person), args.Bool(1), args.Error(2)
+	players, ok := args.Get(0).([]models.Person)
+	if !ok {
+		return nil, args.Bool(1), args.Error(2)
+	}
+	return players, args.Bool(1), args.Error(2)
 }
 
 func (m *MockStatusService) GetTeamByTLA(tla string, withPlayers bool) (*models.Team, error) {
 	args := m.Called(tla, withPlayers)
-	return args.Get(0).(*models.Team), args.Error(1)
+	team, ok := args.Get(0).(*models.Team)
+	if !ok {
+		return nil, args.Error(1)
+	}
+	return team, args.Error(1)
 }
 
 func (m *MockStatusService) GetPersonsByTeamTLA(tla string) ([]models.Person, error) {
 	args := m.Called(tla)
-	return args.Get(0).([]models.Person), args.Error(1)
+	persons, ok := args.Get(0).([]models.Person)
+	if !ok {
+		return nil, args.Error(1)
+	}
+	return persons, args.Error(1)
 }

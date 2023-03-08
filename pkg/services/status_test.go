@@ -34,8 +34,8 @@ func TestRealStatusService_GetStatus(t *testing.T) {
 				on.Return(errors.New("mocked error"))
 			}
 
-			status := service.GetStatus()
-			assert.Equal(t, status.OK, tc.isSuccess)
+			err := service.GetStatus()
+			assert.Equal(t, err == nil, tc.isSuccess)
 		})
 	}
 }
