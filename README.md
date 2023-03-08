@@ -2,16 +2,12 @@
 
 ## Start services with docker-compose
 It is REQUIRED to change `FOOTBALL_APIKEY` environment variable value in
-`docker-compose.yml` file.
+`docker-compose.yml` file. Once started, it can take a few moments up be ready
+since it builds + tests + waits for database to be ready to accept connections.
 
 ```
-# It can take a few moments since it's building + testing + waiting for db to be
-# accepting connections
-docker-compose up -d
+docker-compose up
 ```
-
-## Swagger documentation
-Served on http://localhost:8080/swagger/index.html
 
 ## Example usage
 ```
@@ -26,4 +22,10 @@ curl -X GET "http://localhost:8080/teams/MUN?showPlayers=true"
 
 # Get Manchester United team persons (players and coaches if present)
 curl -X GET "http://localhost:8080/teams/MUN/persons"
+
+# Utility endpoints
+curl -X GET "http://localhost:8080/status"
 ```
+
+## Swagger documentation
+Served on http://localhost:8080/swagger/index.html
