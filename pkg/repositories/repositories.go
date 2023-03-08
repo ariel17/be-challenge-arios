@@ -6,6 +6,7 @@ type Repository interface {
 	Connect() error
 	Close() error
 	GetStatus() error
+	CreateSchema() error
 
 	AddPerson(person models.Person) error
 	AddTeam(team models.Team) error

@@ -25,6 +25,11 @@ func (m *MockRepository) GetStatus() error {
 	return args.Error(0)
 }
 
+func (m *MockRepository) CreateSchema() error {
+	args := m.Called()
+	return args.Error(0)
+}
+
 func (m *MockRepository) AddPerson(person models.Person) error {
 	args := m.Called(person)
 	return args.Error(0)
