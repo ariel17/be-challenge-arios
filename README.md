@@ -5,7 +5,7 @@ It is REQUIRED to change `FOOTBALL_APIKEY` environment variable value in
 `docker-compose.yml` file.
 
 ```
-# can take a few moments since it's building + testing + waiting for db to be
+# It can take a few moments since it's building + testing + waiting for db to be
 # accepting connections
 docker-compose up -d
 ```
