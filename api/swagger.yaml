@@ -1,28 +1,213 @@
 basePath: /
+definitions:
+  models.Person:
+    properties:
+      date_of_birth:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      nationality:
+        type: string
+      position:
+        type: string
+    type: object
+  models.Team:
+    properties:
+      address:
+        type: string
+      area_name:
+        type: string
+      coach:
+        $ref: '#/definitions/models.Person'
+      name:
+        type: string
+      players:
+        items:
+          $ref: '#/definitions/models.Person'
+        type: array
+      short_name:
+        type: string
+      tla:
+        type: string
+    type: object
+  server.ImporterCommand:
+    properties:
+      code:
+        type: string
+    type: object
+  server.PersonsResult:
+    properties:
+      detail:
+        type: string
+      ok:
+        type: boolean
+      persons:
+        items:
+          $ref: '#/definitions/models.Person'
+        type: array
+    type: object
+  server.PlayersResult:
+    properties:
+      detail:
+        type: string
+      ok:
+        type: boolean
+      players:
+        items:
+          $ref: '#/definitions/models.Person'
+        type: array
+    type: object
+  server.Status:
+    properties:
+      detail:
+        type: string
+      ok:
+        type: boolean
+    type: object
+  server.TeamResult:
+    properties:
+      detail:
+        type: string
+      ok:
+        type: boolean
+      team:
+        $ref: '#/definitions/models.Team'
+    type: object
 host: localhost:8080
 info:
   contact:
-    email: support@swagger.io
-    name: API Support
-    url: http://www.swagger.io/support
-  description: This is a sample server celler server.
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  termsOfService: http://swagger.io/terms/
-  title: Swagger Example API
-  version: "1.0"
+    email: arielgerardorios@gmail.com
+    name: Ariel Gerardo Ríos
+    url: http://ariel17.com.ar
+  description: A challenge that uses football-data.org data on its own models.
+  title: BE Challenge by Ariel Gerardo Ríos
+  version: "0.1"
 paths:
-  /status:
+  /competitions/:code/players:
     get:
-      consumes:
-      - application/json
-      description: TODO
+      description: Given the competition code, if it exists on database, returns all
+        players from all participating teams.
+      parameters:
+      - description: Competition code to filter players.
+        in: path
+        name: code
+        required: true
+        type: string
+      - description: Team name to filter players by
+        in: query
+        name: teamName
+        type: string
       produces:
       - application/json
-      responses: {}
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.PlayersResult'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.PlayersResult'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.PlayersResult'
+      summary: Shows all players from a given competition.
+  /importer:
+    post:
+      consumes:
+      - application/json
+      description: Enqueues data scrapping from football-data.org API based on competition
+        code. It is a background process so this endpoint only reflects the state
+        of the petition.
+      parameters:
+      - description: Competition code to import.
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/server.ImporterCommand'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/server.Status'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.Status'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.Status'
+      summary: Imports football data by competition code.
+  /status:
+    get:
+      description: Returns a JSON reflecting the application's health.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Status'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.Status'
       summary: Shows the status of the application.
-securityDefinitions:
-  BasicAuth:
-    type: basic
+  /teams/:tla:
+    get:
+      description: If indicated players/coach also can be resolved if they exist.
+      parameters:
+      - description: Team TLA value to fetch.
+        in: path
+        name: tla
+        required: true
+        type: string
+      - description: Resolve team players/coach if present.
+        in: query
+        name: showPlayers
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.TeamResult'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.TeamResult'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.TeamResult'
+      summary: Retrieves indicated team details with players/coach.
+  /teams/:tla/persons:
+    get:
+      description: Retrieves all persons on a team (players/coach).
+      parameters:
+      - description: Team TLA value to fetch.
+        in: path
+        name: tla
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.PersonsResult'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.PersonsResult'
+      summary: Retrieves all persons on a team (players/coach).
 swagger: "2.0"

@@ -54,7 +54,7 @@ func StartServer() {
 	r.GET(statusPath, StatusHandler)
 	r.POST(importerPath, ImporterHandler)
 	r.GET(competitionPlayersPath, PlayersByCompetitionCodeHandler)
-	r.GET(teamPath, TeamTLAHandler)
+	r.GET(teamPath, TeamByTLAHandler)
 	r.GET(teamPersonsPath, PersonsByTeamTLAHandler)
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
