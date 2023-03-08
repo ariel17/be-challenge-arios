@@ -21,7 +21,7 @@ const (
 	competitionPlayersPath = "/competitions/:code/players"
 	teamPath               = "/teams/:tla"
 	teamPersonsPath        = "/teams/:tla/persons"
-	// TODO importer ticket status
+	// TODO resource path for importer ticket status
 )
 
 var (

@@ -7,6 +7,8 @@ import (
 )
 
 type ImporterService interface {
+	// ImportDataByCompetitionCode
+	// TODO create and associate a ticket ID for future checks on process status
 	ImportDataByCompetitionCode(code string) error
 }
 

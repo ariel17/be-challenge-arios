@@ -79,3 +79,7 @@ func TestImporterHandler(t *testing.T) {
 		})
 	}
 }
+
+// TODO test for r.GET(competitionPlayersPath, PlayersByCompetitionCodeHandler)
+// TODO test for r.GET(teamPath, TeamTLAHandler)
+// TODO test for r.GET(teamPersonsPath, PersonsByTeamTLAHandler)
