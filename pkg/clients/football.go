@@ -60,7 +60,6 @@ type FootballAPIClient interface {
 	GetLeagueByCode(code string) (*League, error)
 	GetTeamsByLeagueCode(code string) ([]Team, error)
 	GetTeamByID(id int64) (*Team, error)
-	GetPersonByID(id int64) (*Person, error)
 }
 
 // NewFootballAPIClient creates a new instance of real API client.
@@ -152,20 +151,6 @@ func (r *realAPIClient) GetTeamByID(id int64) (*Team, error) {
 		return nil, err
 	}
 	return &team, nil
-}
-
-func (r *realAPIClient) GetPersonByID(id int64) (*Person, error) {
-	url := fmt.Sprintf("/persons/%d", id)
-	body, err := r.get(url)
-	if err != nil {
-		return nil, err
-	}
-	person := Person{}
-	err = json.Unmarshal(body, &person)
-	if err != nil {
-		return nil, err
-	}
-	return &person, nil
 }
 
 func init() {
