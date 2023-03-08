@@ -141,6 +141,6 @@ func (r *realAPIClient) GetTeamsByLeagueCode(code string) ([]Team, error) {
 func init() {
 	rateLimiter = rate.NewLimiter(rate.Every(time.Minute), configs.GetFootballMaxRequestsPerMinute())
 	client = &http.Client{
-		Timeout: time.Second,
+		Timeout: 5 * time.Second,
 	}
 }
