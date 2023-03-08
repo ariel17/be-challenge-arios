@@ -140,15 +140,26 @@ func (m *mysqlRepository) GetTeamByTLA(tla string) (*models.Team, error) {
 	return &team, nil
 }
 
-func (m *mysqlRepository) GetPersonsByCompetitionCode(code string) ([]models.Person, error) {
+func (m *mysqlRepository) GetPlayersByCompetitionCode(code, teamNameToFilter string) ([]models.Person, error) {
 	query := `SELECT p.id, p.name, p.date_of_birth, p.nationality, tp.position
 FROM competitions c
 INNER JOIN competitions_teams ct ON (c.code=ct.competition_code)
 INNER JOIN teams t ON (ct.team_tla=t.tla)
 INNER JOIN teams_persons tp ON (t.tla=tp.team_tla)
 INNER JOIN persons p ON (tp.person_id=p.id)
-WHERE c.code = ?`
-	result, err := m.db.Query(query, code)
+WHERE c.code = ? AND tp.position IS NOT NULL`
+
+	var (
+		result *sql.Rows
+		err    error
+	)
+	if teamNameToFilter != "" {
+		query += " AND t.name LIKE ?"
+		teamNameToFilter = "%" + teamNameToFilter + "%"
+		result, err = m.db.Query(query, code, teamNameToFilter)
+	} else {
+		result, err = m.db.Query(query, code)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -202,4 +213,23 @@ WHERE t.tla = ?`
 	}
 
 	return persons, nil
+}
+
+func (m *mysqlRepository) CompetitionExists(code string) (bool, error) {
+	query := "SELECT COUNT(*) FROM competitions WHERE code = ?"
+	result, err := m.db.Query(query, code)
+	if err != nil {
+		return false, err
+	}
+
+	defer result.Close()
+	var count int
+	for result.Next() {
+		err = result.Scan(&count)
+		if err != nil {
+			return false, err
+		}
+	}
+
+	return count > 0, nil
 }

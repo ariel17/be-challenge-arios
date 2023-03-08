@@ -327,7 +327,7 @@ func TestMysqlRepository_GetPersonsByCompetitionCode(t *testing.T) {
 				expectedQuery.WillReturnError(errors.New("some error"))
 			}
 
-			persons, err := r.GetPersonsByCompetitionCode(competition.Code)
+			persons, err := r.GetPlayersByCompetitionCode(competition.Code, "")
 			assert.Equal(t, len(persons) == 2, tc.isSuccess && tc.isFound)
 			assert.Equal(t, err == nil, tc.isSuccess)
 
@@ -389,6 +389,45 @@ func TestMysqlRepository_GetPersonsByTeamTLA(t *testing.T) {
 
 			persons, err := r.GetPersonsByTeamTLA(team.TLA)
 			assert.Equal(t, len(persons) == 2, tc.isSuccess && tc.isFound)
+			assert.Equal(t, err == nil, tc.isSuccess)
+
+			err = mock.ExpectationsWereMet()
+			assert.Nil(t, err)
+		})
+	}
+}
+
+func TestMysqlRepository_CompetitionExists(t *testing.T) {
+	code := "ABC"
+	testCases := []struct {
+		name      string
+		isSuccess bool
+		found     int
+	}{
+		{"ok", true, 1},
+		{"not found", true, 0},
+		{"failed", false, 0},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			db, mock, _ := sqlmock.New()
+			defer db.Close()
+
+			r := &mysqlRepository{db: db}
+
+			expectedQuery := mock.ExpectQuery("SELECT COUNT").
+				WithArgs(code)
+
+			if tc.isSuccess {
+				rows := sqlmock.NewRows([]string{"COUNT(*)"}).AddRow(tc.found)
+				expectedQuery.WillReturnRows(rows)
+			} else {
+				expectedQuery.WillReturnError(errors.New("some error"))
+			}
+
+			exists, err := r.CompetitionExists(code)
+			assert.Equal(t, exists, tc.isSuccess && tc.found > 0)
 			assert.Equal(t, err == nil, tc.isSuccess)
 
 			err = mock.ExpectationsWereMet()

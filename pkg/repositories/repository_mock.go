@@ -57,15 +57,32 @@ func (m *MockRepository) AddPersonToTeam(person models.Person, team models.Team)
 
 func (m *MockRepository) GetTeamByTLA(tla string) (*models.Team, error) {
 	args := m.Called(tla)
-	return args.Get(0).(*models.Team), args.Error(1)
+	team, ok := args.Get(0).(*models.Team)
+	if !ok {
+		return nil, args.Error(1)
+	}
+	return team, args.Error(1)
 }
 
-func (m *MockRepository) GetPersonsByCompetitionCode(code string) ([]models.Person, error) {
-	args := m.Called(code)
-	return args.Get(0).([]models.Person), args.Error(1)
+func (m *MockRepository) GetPlayersByCompetitionCode(code, teamNameToFilter string) ([]models.Person, error) {
+	args := m.Called(code, teamNameToFilter)
+	players, ok := args.Get(0).([]models.Person)
+	if !ok {
+		return nil, args.Error(1)
+	}
+	return players, nil
 }
 
 func (m *MockRepository) GetPersonsByTeamTLA(tla string) ([]models.Person, error) {
 	args := m.Called(tla)
-	return args.Get(0).([]models.Person), args.Error(1)
+	persons, ok := args.Get(0).([]models.Person)
+	if !ok {
+		return nil, args.Error(1)
+	}
+	return persons, args.Error(1)
+}
+
+func (m *MockRepository) CompetitionExists(code string) (bool, error) {
+	args := m.Called(code)
+	return args.Bool(0), args.Error(1)
 }

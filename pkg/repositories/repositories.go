@@ -15,6 +15,7 @@ type Repository interface {
 	AddPersonToTeam(player models.Person, team models.Team) error
 
 	GetTeamByTLA(tla string) (*models.Team, error)
-	GetPersonsByCompetitionCode(code string) ([]models.Person, error)
+	GetPlayersByCompetitionCode(code, teamNameToFilter string) ([]models.Person, error)
 	GetPersonsByTeamTLA(tla string) ([]models.Person, error)
+	CompetitionExists(code string) (bool, error)
 }
