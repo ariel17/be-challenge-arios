@@ -29,3 +29,5 @@ curl -X GET "http://localhost:8080/status"
 
 ## Swagger documentation
 Served on http://localhost:8080/swagger/index.html
+
+![swagger screenshot](./swagger.png)
