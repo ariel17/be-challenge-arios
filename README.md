@@ -1,31 +1,29 @@
-# Backend challenge from Ariel Gerardo Ríos (that's me!)
+# Backend challenge by Ariel Gerardo Ríos (that's me!)
 
-## Usage
-TODO
+## Start services with docker-compose
+It is REQUIRED to change `FOOTBALL_APIKEY` environment variable value in
+`docker-compose.yml` file.
 
-### Build Docker image
 ```
-docker build . -t be-challenge-arios
-```
-
-### Using environment variables file
-Add keys to `.env` file:
-```
-FOOTBALL_APIKEY="v4lu3!#"
-FOOTBALL_MAX_REQUESTS_PER_MINUTE=10
-DATABASE_DSN="user:password@host:port/db_name"
-DATABASE_STATUS_QUERY="SELECT 1"
+# can take a few moments since it's building + testing + waiting for db to be
+# accepting connections
+docker-compose up -d
 ```
 
-Make Docker pick them as follows:
-```
-docker run --env-file .env be-challenge-arios
-```
+## Swagger documentation
+Served on http://localhost:8080/swagger/index.html
 
-### Build Swagger documentation
+## Example usage
 ```
-swag init -o api
-```
+# enqueues data import process for Premier League competition
+curl -X POST --data '{"code":"PL"}' http://localhost:8080/importer
 
-* Served on http://localhost:8080/swagger/index.html
-* Swaggo docs: https://github.com/swaggo/swag#getting-started
+# Get players in Prime League that belongs to a Manches-like team (teamName optional)
+curl -X GET "http://localhost:8080/competitions/pl/players?teamName=Manches"
+
+# Get Manchester United team with players (showPlayers optional)
+curl -X GET "http://localhost:8080/teams/MUN?showPlayers=true"
+
+# Get Manchester United team persons (players and coaches if present)
+curl -X GET "http://localhost:8080/teams/MUN/persons"
+```
