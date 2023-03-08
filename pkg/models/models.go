@@ -8,6 +8,10 @@ type Person struct {
 	Nationality string  `json:"nationality"`
 }
 
+func (p *Person) IsPlayer() bool {
+	return p.Position != nil
+}
+
 type Team struct {
 	TLA       string   `json:"tla"`
 	Name      string   `json:"name"`
