@@ -1,7 +1,9 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
@@ -53,4 +55,45 @@ func ImporterHandler(c *gin.Context) {
 	}()
 
 	c.JSON(http.StatusCreated, ImporterResult{Status: "queued"})
+}
+
+func PlayersByCompetitionCodeHandler(c *gin.Context) {
+	code := c.Param("code")
+	teamName, _ := c.GetQuery("teamName")
+	players, competitionExists, err := playersService.GetPlayersByCompetitionCode(code, teamName)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+	if !competitionExists {
+		c.JSON(http.StatusBadRequest, fmt.Sprintf("competition %s does not exist on database", code))
+		return
+	}
+	c.JSON(http.StatusOK, players)
+}
+
+func TeamTLAHandler(c *gin.Context) {
+	tla := c.Param("tla")
+	rawShowPlayers, _ := c.GetQuery("showPlayers")
+	showPlayers, _ := strconv.ParseBool(rawShowPlayers)
+	team, err := playersService.GetTeamByTLA(tla, showPlayers)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+	if team == nil {
+		c.JSON(http.StatusNotFound, fmt.Sprintf("team %s does not exist on database", tla))
+		return
+	}
+	c.JSON(http.StatusOK, team)
+}
+
+func PersonsByTeamTLAHandler(c *gin.Context) {
+	tla := c.Param("tla")
+	persons, err := playersService.GetPersonsByTeamTLA(tla)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, persons)
 }

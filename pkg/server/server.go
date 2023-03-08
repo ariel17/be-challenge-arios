@@ -16,17 +16,18 @@ import (
 )
 
 const (
-	statusPath   = "/status"
-	importerPath = "/importer"
+	statusPath             = "/status"
+	importerPath           = "/importer"
+	competitionPlayersPath = "/competitions/:code"
+	teamPath               = "/teams/:tla"
+	teamPersonsPath        = "/teams/:tla/persons"
 	// TODO importer ticket status
-	// TODO players by league code
-	// TODO team by tla
-	// TODO players by team tla
 )
 
 var (
 	statusService   services.StatusService
 	importerService services.ImporterService
+	playersService  services.FootballService
 )
 
 // StartServer creates a new instance of HTTP server with indicated handlers
@@ -47,10 +48,15 @@ func StartServer() {
 	apiClient := clients.NewFootballAPIClient()
 	statusService = services.NewStatusService(repository)
 	importerService = services.NewImporterService(apiClient, repository)
+	playersService = services.NewFootballService(repository)
 
 	r := gin.Default()
 	r.GET(statusPath, StatusHandler)
 	r.POST(importerPath, ImporterHandler)
+	r.GET(competitionPlayersPath, PlayersByCompetitionCodeHandler)
+	r.GET(teamPath, TeamTLAHandler)
+	r.GET(teamPersonsPath, PersonsByTeamTLAHandler)
+
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	if err := r.Run(fmt.Sprintf(":%d", configs.GetPort())); err != nil {
