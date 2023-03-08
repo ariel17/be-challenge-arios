@@ -7,6 +7,8 @@ services:
       DATABASE_DSN: challenge:challenge@tcp(db:3306)/challenge
     ports:
       - "8080:8080"
+    networks:
+      - backend
     depends_on:
       - db
 
@@ -21,5 +23,10 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: true
     ports:
       - "3306:3306"
-    volumes:
-      - "./init.sql:/docker-entrypoint-initdb.d/1.sql"
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
+    name: backend
