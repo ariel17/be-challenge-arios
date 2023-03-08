@@ -4,22 +4,16 @@ import (
 	"github.com/ariel17/be-challenge-arios/pkg/server"
 )
 
-// @title           Swagger Example API
-// @version         1.0
-// @description     This is a sample server celler server.
-// @termsOfService  http://swagger.io/terms/
+// @title           BE Challenge by Ariel Gerardo Ríos
+// @version         0.1
+// @description     A challenge that uses football-data.org data on its own models.
 
-// @contact.name   API Support
-// @contact.url    http://www.swagger.io/support
-// @contact.email  support@swagger.io
-
-// @license.name  Apache 2.0
-// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+// @contact.name   Ariel Gerardo Ríos
+// @contact.url    http://ariel17.com.ar
+// @contact.email  arielgerardorios@gmail.com
 
 // @host      localhost:8080
 // @BasePath  /
-
-// @securityDefinitions.basic  BasicAuth
 func main() {
 	server.StartServer()
 }
