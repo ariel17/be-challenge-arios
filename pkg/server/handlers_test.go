@@ -1,8 +1,10 @@
 package server
 
 import (
+	"errors"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -36,6 +38,44 @@ func TestStatusHandler(t *testing.T) {
 
 			r.ServeHTTP(rr, req)
 			assert.Equal(t, tc.statusCode, rr.Code)
+		})
+	}
+}
+
+func TestImporterHandler(t *testing.T) {
+	testCases := []struct {
+		name              string
+		body              string
+		importerIsCalled  bool
+		importerIsSuccess bool
+		status            int
+	}{
+		{"ok with goroutine ok", `{"code": "abc"}`, true, true, http.StatusCreated},
+		{"invalid body", `{"code`, false, false, http.StatusBadRequest},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+
+			if tc.importerIsCalled {
+				mockImporterService := services.MockImporterService{}
+				on := mockImporterService.On("ImportDataByCompetitionCode", "abc")
+				if tc.importerIsSuccess {
+					on.Return(nil)
+				} else {
+					on.Return(errors.New("mocked error"))
+				}
+				importerService = &mockImporterService
+			}
+
+			r := gin.Default()
+			r.POST(importerPath, ImporterHandler)
+
+			req, _ := http.NewRequest(http.MethodPost, importerPath, strings.NewReader(tc.body))
+			rr := httptest.NewRecorder()
+
+			r.ServeHTTP(rr, req)
+			assert.Equal(t, tc.status, rr.Code)
 		})
 	}
 }
