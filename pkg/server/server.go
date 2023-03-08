@@ -18,7 +18,7 @@ import (
 const (
 	statusPath             = "/status"
 	importerPath           = "/importer"
-	competitionPlayersPath = "/competitions/:code"
+	competitionPlayersPath = "/competitions/:code/players"
 	teamPath               = "/teams/:tla"
 	teamPersonsPath        = "/teams/:tla/persons"
 	// TODO importer ticket status
