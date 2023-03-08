@@ -25,21 +25,3 @@ func (m *MockAPIClient) GetTeamsByLeagueCode(code string) ([]Team, error) {
 	}
 	return teams, args.Error(1)
 }
-
-func (m *MockAPIClient) GetTeamByID(id int64) (*Team, error) {
-	args := m.Called(id)
-	team, ok := args.Get(0).(*Team)
-	if !ok {
-		return nil, args.Error(1)
-	}
-	return team, args.Error(1)
-}
-
-func (m *MockAPIClient) GetPersonByID(id int64) (*Person, error) {
-	args := m.Called(id)
-	person, ok := args.Get(0).(*Person)
-	if !ok {
-		return nil, args.Error(1)
-	}
-	return person, args.Error(1)
-}

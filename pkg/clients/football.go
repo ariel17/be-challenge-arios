@@ -59,7 +59,6 @@ type teams struct {
 type FootballAPIClient interface {
 	GetLeagueByCode(code string) (*League, error)
 	GetTeamsByLeagueCode(code string) ([]Team, error)
-	GetTeamByID(id int64) (*Team, error)
 }
 
 // NewFootballAPIClient creates a new instance of real API client.
@@ -137,20 +136,6 @@ func (r *realAPIClient) GetTeamsByLeagueCode(code string) ([]Team, error) {
 		return nil, err
 	}
 	return t.Teams, nil
-}
-
-func (r *realAPIClient) GetTeamByID(id int64) (*Team, error) {
-	url := fmt.Sprintf("/teams/%d", id)
-	body, err := r.get(url)
-	if err != nil {
-		return nil, err
-	}
-	team := Team{}
-	err = json.Unmarshal(body, &team)
-	if err != nil {
-		return nil, err
-	}
-	return &team, nil
 }
 
 func init() {
